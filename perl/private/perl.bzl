@@ -40,14 +40,14 @@ _EXECUTABLE_PERL_ATTRS = _COMMON_PERL_ATTRS | {
         doc = "List of arguments to pass to the Perl interpreter (e.g., ['-T'] for taint mode) in addition to the arguments passed by the toolchain.",
         default = [],
     ),
-    "_bash_runfiles": attr.label(
-        cfg = "target",
-        default = Label("@bazel_tools//tools/bash/runfiles"),
-    ),
     "_entrypoint": attr.label(
         doc = "The executable entrypoint.",
         allow_single_file = True,
         default = Label("//perl/private:entrypoint.pl"),
+    ),
+    "_runfiles": attr.label(
+        doc = "The runfiles library used by the launcher.",
+        default = Label("//perl/private:runfiles"),
     ),
     "_windows_constraint": attr.label(
         default = Label("@platforms//os:windows"),
@@ -91,8 +91,8 @@ def _transitive_deps(ctx, extra_files = [], extra_deps = []):
         transitive_files = depset(transitive = deps.files),
         collect_default = True,
     )
-    if hasattr(ctx.attr, "_bash_runfiles"):
-        files = files.merge(ctx.attr._bash_runfiles.default_runfiles)
+    if hasattr(ctx.attr, "_runfiles"):
+        files = files.merge(ctx.attr._runfiles.default_runfiles)
     return struct(
         srcs = depset(
             direct = ctx.files.srcs,
